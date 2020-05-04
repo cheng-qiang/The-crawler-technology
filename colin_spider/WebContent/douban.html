@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Java开发网络爬虫系统【搜索引擎核心技术】</title>
+	<meta name="keywords" content="keyword1,keyword2,keyword3">
+	<meta name="description" content="this my page">
+	<meta name="content-type" content="text/html; charset=UTF-8">
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<!-- 懒加载 -->
+	<script type="text/javascript" src="js/jquery.lazyload.min.js"></script>
+	<!-- 流式布局 -->
+	<script type="text/javascript" src="js/blocksit.min.js"></script>
+	<!-- 弹框 -->
+	<script type="text/javascript" src="js/jquery.lightbox-0.5.min.js"></script>
+	<!-- 样式 -->
+	<link rel="stylesheet" type="css/jquery.lightbox-0.5.css">
+	<script type="text/javascript">
+		/* 页面加载后自动执行 */
+		$(function(){
+			
+			var pageNum = 2;
+			
+			$("#getImageBtn").click(function(){
+				loadImages();
+			});
+			
+			//流式布局
+			function blockImages(){
+				$("#container").BlocksIt({
+					numOfClos:5
+				});
+			}
+			
+			//给下拉列表绑定change事件
+			$("#categoryValue").change(function(){
+				$("#container").html('');
+				pageNum = 2;
+			});
+			
+			//回到顶部
+			$("#gotop").click(function(){
+				$("body,html").animate({scrollTop:0},500);
+			});
+			
+			
+			/* 获取图片 */
+			function loadImages() {
+				var category = $("#categoryValue").val();
+				$.ajax({
+					url: "data.jsp",
+					type: "post",
+					data: {pageNum:pageNum,category:category},
+					dataType: "json",
+					success:function(data){
+						//动态加载图片
+						for(var i = 0 ; i < data.length ; i++){
+							var img = '';
+							img += "<div class='grid'><div class='imgholder'><img class='lazy' src='";
+							img += "/colin_spider/images/pixel.gif' data-original='";
+							img += data[i].shortUrl;
+							img += "' width='175'/></div><strong>";
+							img += data[i].title;
+							img += "</strong><div class='meta'><a href='";
+							img += data[i].oriUrl;
+							img += "' class='lightbox'>";
+							img += "高清无码原图";
+							img += "</a></div></div>";
+							$('#container').append(img);
+						}
+						pageNum++;
+						$("a.lightbox").lightBox();
+						//流式布局
+						blockImages();
+						//图片懒加载
+						$("img.lazy").lazyload();
+					}
+				})
+			}	
+			/* 给窗口绑定滚动事件 */
+			$(window).scroll(function(){
+				//当滚动到底部以上50像素的时候，加载新的内容
+				if($(document).height() - $(this).scrollTop() - $(this).height() < 50){
+					loadImages();
+				}
+				if($(this).scrollTop() > 200){
+					$("#gotop").fadeIn(400);//淡入
+				}else{
+					$("#gotop").stop().fadeOut(400);//淡出
+				}
+			});
+		});
+	
+	</script>	
+	<style type="text/css">
+	*{
+	  margin:0;
+	  padding:0;
+	}
+	body{
+	  background-color:#f7ebf3;
+	  overflow-x:hidden;
+	}
+	.search{
+	  width:450px;
+	  margin:0 auto;
+	}
+	.search h1{
+	  font-size:24px;
+	  color:#1612b7;
+	}
+	.s_box{
+	  width:100%;
+	  height:30px;
+	  margin:0 auto;
+	  padding:5px;
+	  margin-left:-20px;
+	  margin-top:10px;
+	}
+	.s_txt{
+	  width:190px;
+	  height:30px;
+	  border:1px solid #ccc;
+	  margin-left:40px;
+	  visibility: visible!important;
+	}
+	
+	.s_btn{
+	  width:100px;
+	  height:30px;
+	  background-color:#F07B26;
+	  border:0;
+	  font-size:14px;
+	  color:#fff;
+	  font-weight:bold;
+	  border-radius:3px;
+	  cursor:pointer;
+	}
+	.s_btn:hover{
+	  background-color:#F0AC7A;
+	}
+	
+	#wrapper{
+	  margin-top:0px;
+	  width:100%;
+	}
+	
+	#container{
+	  width:900px;
+	  margin:0 auto 25px;
+	  padding-bottom:10px;
+	  position:relative;
+	}
+	
+	.grid{
+	  width:188px;
+	  min-height:100px;
+	  padding:15px;
+	  background-color:#fff;
+	  margin:8px;
+	  font-size:12px;
+	  float:left;
+	  box-shadow:0 1px 3px rgba(0,0,0,0.4);
+	  /* 动画效果 */
+	  transition:top 1s ease,left 1s ease; 
+/* 	  -webkit-transition:top
+	  -ms-transition:top 
+	  -moz-transition:top */
+	}
+	
+	.grid strong{
+	  border-bottom:1px solid #ccc;
+	  margin:10px 0;
+	  display:block;
+	  padding:0 0 5px;
+	  font-size:18px
+	}
+	
+	.meta{
+	  text-align:right;
+	  color:#777;
+	  font-style:italic;
+	}
+	
+	img{
+	  max-width:100%;
+	  display: block;
+	  background: url(/colin_spider/images/loding.gif) no-repeat center;
+	}
+	
+	a{
+	 color: #ccc;
+	 text-decoration: none;
+	}
+	a:hover {
+	  color: #9E9E9E;
+	}
+	#gotop{
+	  display:none;
+	  width:55px;
+	  height:55px;'
+	  right:50px;
+	  bottom:50px;
+	  position:fixed;
+	  cursor:pointer;
+	  background: url(/colin_spider/images/backTop1.png) no-repeat;
+	}
+	</style>
+</head>
+<body>
+	
+	<div class="search">
+	     <h1>Java开发网络爬虫【小试牛刀】</h1>
+	     <div class="s_box">
+	     	<select id="categoryValue" class="s_txt">
+	     		<option value="fresh">小清新</option>
+	     		<option value="art">文艺</option>
+	     	</select>
+	     	<input class="s_btn" type="button" id="getImageBtn" value="确         定"/>
+	     </div>
+	</div>
+	
+	<div id="wrapper">
+		<div id="container">
+			
+		</div>
+	</div>
+	
+	<div id="gotop">
+	
+	</div>
+</body>
+</html>
